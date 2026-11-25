@@ -1,0 +1,141 @@
+@baseUrl = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzk1NjE3OTc2LCJleHAiOjE3OTU2MTc5ODF9._nMOtJyI12014NMKBOxEPks27SS8qgji4QmudW7zcl0
+
+### 1. Register akun uji (201)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "f1d02410047@example.com",
+  "password": "password"
+}
+
+### 2. Login akun uji (200) - copy token dari response ke variabel @token di atas
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "f1d02410047@example.com",
+  "password": "password"
+}
+
+### 3. Login dengan password salah (401 LOGIN_GAGAL)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "f1d02410047@example.com",
+  "password": "password-salah"
+}
+
+### 4. Email duplikat (409 EMAIL_DUPLIKAT)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "f1d02410047@example.com",
+  "password": "password"
+}
+
+### 5. Validasi register (422 VALIDATION_ERROR)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "bukan-email",
+  "password": "123"
+}
+
+### 6. GET identitas sendiri dengan token (200)
+GET {{baseUrl}}/auth/saya
+Authorization: Bearer {{token}}
+
+### 7. GET daftar product - PUBLIK (200, tanpa token)
+GET {{baseUrl}}/api/products
+
+### 8. GET detail product - PUBLIK (200, tanpa token)
+GET {{baseUrl}}/api/products/1
+
+### 9. POST product tanpa token (401 TOKEN_DIPERLUKAN)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "sku": "TEST-AUTH-001",
+  "name": "Produk Uji Autentikasi",
+  "category": "Testing",
+  "stock": 10,
+  "expired_date": null
+}
+
+### 10. POST product dengan token (201) - endpoint protected
+POST {{baseUrl}}/api/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sku": "TEST-AUTH-001",
+  "name": "Produk Uji Autentikasi",
+  "category": "Testing",
+  "stock": 10,
+  "expired_date": null
+}
+
+### 11. POST order tanpa token (401 TOKEN_DIPERLUKAN)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "customer_name": "Penguji Tugas 9",
+  "qty": 1
+}
+
+### 12. POST order dengan token (201) - pilih product id dengan stok cukup
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "customer_name": "Penguji Tugas 9",
+  "qty": 1
+}
+
+### 13. PUT product tanpa token (401)
+PUT {{baseUrl}}/api/products/1
+Content-Type: application/json
+
+{
+  "sku": "SKU-UPDATE-001",
+  "name": "Produk Update",
+  "category": "Testing",
+  "stock": 10,
+  "expired_date": null
+}
+
+### 14. DELETE product tanpa token (401)
+DELETE {{baseUrl}}/api/products/1
+
+### 15. Token palsu/rusak (401 TOKEN_TIDAK_VALID)
+GET {{baseUrl}}/auth/saya
+Authorization: Bearer abc.def.ghi
+
+### 16. Percobaan token dimanipulasi
+# Jalankan node scripts/tamper-token.js "TOKEN_ASLI" untuk membuat token dengan id payload berubah.
+# Signature asli dipertahankan, sehingga token ini harus gagal diverifikasi.
+GET {{baseUrl}}/auth/saya
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTk5OTk5LCJpYXQiOjE3OTU2MTY1ODIsImV4cCI6MTc5NTYyMzc4Mn0.f3et17sg2KjaAqNFsQeomjgZoNfEDiVZTIMwvYPIIzQ
+
+### 17. Percobaan token expired
+# Untuk pengujian, ubah sementara expiresIn di authService.ts menjadi "5s".
+# Login, tunggu 6 detik, lalu jalankan request ini menggunakan token tadi.
+# Setelah screenshot, kembalikan expiresIn menjadi "2h" dan restart server.
+GET {{baseUrl}}/auth/saya
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzk1NjE3OTc2LCJleHAiOjE3OTU2MTc5ODF9._nMOtJyI12014NMKBOxEPks27SS8qgji4QmudW7zcl0
+
+### 18. GET orders - PUBLIK
+GET {{baseUrl}}/api/orders
+
+### 19. GET detail order - PUBLIK
+GET {{baseUrl}}/api/orders/1

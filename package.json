@@ -1,0 +1,33 @@
+{
+  "name": "t9-autentikasi-products-orders",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "seed": "tsx prisma/seed.ts",
+    "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.0",
+    "express": "^4.21.2",
+    "joi": "^17.13.3",
+    "dotenv": "^16.4.7",
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.5",
+    "prisma": "6.19.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
